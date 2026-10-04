@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 320px;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    
+    h1 {
+      color: #333;
+      font-size: 20px;
+      margin: 0 0 5px 0;
+      text-align: center;
+    }
+    
+    h2 {
+      color: #666;
+      font-size: 14px;
+      font-weight: normal;
+      margin: 0 0 20px 0;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .toggle-container {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .toggle-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .toggle-text {
+      font-size: 14px;
+      color: #333;
+      flex: 1;
+    }
+    
+    /* Стили для тумблера */
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 26px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #4CAF50;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    
+    /* Стили для footer */
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: #999;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
+    
+    .footer span {
+      color: #666;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>NoKakulaLeveling!</h1>
+  <h2>Settings</h2>
+  
+  <div class="toggle-container">
+    <label class="toggle-label">
+      <span class="toggle-text">Скрыть весь Какула левелинг</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="toggle1">
+        <span class="slider"></span>
+      </div>
+    </label>
+  </div>
+  
+  <div class="toggle-container">
+    <label class="toggle-label">
+      <span class="toggle-text">Скрыть чужой какула левелинг</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="toggle2">
+        <span class="slider"></span>
+      </div>
+    </label>
+  </div>
+  
+  <div class="toggle-container">
+    <label class="toggle-label">
+      <span class="toggle-text">Авто какула левелинг</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="toggle3">
+        <span class="slider"></span>
+      </div>
+    </label>
+  </div>
+  
+  <!-- Footer с припиской -->
+  <div class="footer">
+    powered by <span>SubaKon</span>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
