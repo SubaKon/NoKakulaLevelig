@@ -1,4 +1,4 @@
-<img width="475" height="914" alt="image" src="https://github.com/user-attachments/assets/bde3d6f8-5d64-4f4c-af0a-d0b02d710929" /># 🎮 NoKakulaLeveling
+🎮 NoKakulaLeveling
 
 Браузерное расширение для скрытия Какула Левелинга из вашего чата!
 
