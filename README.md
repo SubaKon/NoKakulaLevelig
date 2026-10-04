@@ -1,4 +1,4 @@
-# 🎮 NoKakulaLeveling
+<img width="475" height="914" alt="image" src="https://github.com/user-attachments/assets/bde3d6f8-5d64-4f4c-af0a-d0b02d710929" /># 🎮 NoKakulaLeveling
 
 Браузерное расширение для скрытия Какула Левелинга из вашего чата!
 
@@ -12,6 +12,10 @@
 - 🔄 **Универсальность:** Работает одинаково хорошо как на **прямых трансляциях (Live)**, так и на **записях стримов (VOD)**.
 - ⚡ **Мгновенная работа:** Фильтрация происходит в реальном времени без задержек и нагрузки на браузер.
 - 🔒 **Приватность:** Расширение работает полностью локально в вашем браузере. Оно не собирает, не хранит и не передаёт никакие личные данные на сторонние серверы.
+
+<img width="475" height="914" alt="image" src="https://github.com/user-attachments/assets/28cff4e2-a380-4e5e-9c0c-a263214b9acf" />
+<img width="487" height="944" alt="image" src="https://github.com/user-attachments/assets/59ecb8f4-f0b8-4bb5-aeb8-0846f4ea6c93" />
+
 
 
 ## 📥 Установка
