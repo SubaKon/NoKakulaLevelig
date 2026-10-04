@@ -14,11 +14,26 @@
 - 🔒 **Приватность:** Расширение работает полностью локально в вашем браузере. Оно не собирает, не хранит и не передаёт никакие личные данные на сторонние серверы.
 
 
-Было:
-<img width="475" height="914" alt="image" src="https://github.com/user-attachments/assets/28cff4e2-a380-4e5e-9c0c-a263214b9acf" />
-Стало:
-<img width="487" height="944" alt="image" src="https://github.com/user-attachments/assets/59ecb8f4-f0b8-4bb5-aeb8-0846f4ea6c93" />
+<h3 align="center">📸 Демонстрация работы</h3>
 
+<table align="center">
+  <tr>
+    <th align="center">🚫 Без расширения (Было)</th>
+    <th align="center">✨ С NoKakulaLeveling (Стало)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/28cff4e2-a380-4e5e-9c0c-a263214b9acf" width="350" alt="Чат до фильтрации">
+      <br>
+      <sub>Чат заспамлен сообщениями бота</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/59ecb8f4-f0b8-4bb5-aeb8-0846f4ea6c93" width="350" alt="Чат после фильтрации">
+      <br>
+      <sub>Чистый чат, только живое общение</sub>
+    </td>
+  </tr>
+</table>
 
 
 ## 📥 Установка
