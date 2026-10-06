@@ -3,6 +3,10 @@ console.log('NoKakulaLeveling: Скрипт запущен');
 // Глобальные переменные
 let patterns = [];
 let isFilterEnabled = false;
+let isHideOthersEnabled = false;
+let userNickname = '';
+
+const BOT_NICKNAME = 'AlexstraWho'; // Ник Алекстры
 
 // 1. Загружаем паттерны из файла
 async function loadPatterns() {
@@ -16,11 +20,15 @@ async function loadPatterns() {
   }
 }
 
-// 2. Загружаем состояние тумблера из storage
+// 2. Загружаем состояние тумблеров и ника из storage
 function loadToggleState() {
-  chrome.storage.sync.get(['hideAllKakula'], function(result) {
+    chrome.storage.sync.get(['hideAllKakula', 'hideOthersKakula', 'twitchNickname'], function(result) {
     isFilterEnabled = result.hideAllKakula || false;
-    console.log('🔘 Состояние тумблера:', isFilterEnabled);
+    isHideOthersEnabled = result.hideOthersKakula || false;
+    userNickname = (result.twitchNickname || '').trim();
+    //console.log('🔘 Тумблер "скрыть весь":', isFilterEnabled);
+    //console.log('🔘 Тумблер "скрыть чужой":', isHideOthersEnabled);
+    //console.log('👤 Ник пользователя:', userNickname);
   });
 }
 
@@ -93,13 +101,25 @@ function containsPattern(messageText) {
   return false;
 }
 
-// 6. Скрытие сообщения
+// 6. Проверяем, есть ли в сообщении упоминание @ник пользователя (без учёта регистра)
+function hasUserMention(node, fullText) {
+  if (!userNickname) return false;
+  const nickLower = userNickname.toLowerCase();
+  const mentionRegex = new RegExp('@' + nickLower + '(?![\\w])', 'i');
+  return mentionRegex.test(fullText);
+}
+
+// 7. Скрытие сообщения
 function hideMessage(messageElement) {
   messageElement.style.display = 'none';
   //console.log('🚫 Сообщение скрыто');
 }
 
-// 7. Ждем появления контейнера #live-page-chat
+function showMessage(messageElement) {
+  messageElement.style.display = '';
+}
+
+// 8. Ждем появления контейнера #live-page-chat
 function waitForChatContainer() {
   const existingContainer = document.querySelector('#live-page-chat');
   if (existingContainer) {
@@ -124,21 +144,21 @@ function waitForChatContainer() {
 // 8. Наблюдатель за сообщениями и ФИЛЬТРАЦИЯ
 function startChatObserver(container) {
   console.log('🚀 Запускаем наблюдение и фильтрацию...');
-  
+
   const chatObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
-          
+
           // Фильтр: реагируем только на LI (VOD) и DIV (Live)
           if (node.tagName !== 'LI' && node.tagName !== 'DIV') {
             return;
           }
-          
+
           // Извлекаем имя
           const usernameEl = node.querySelector('[data-a-target="chat-message-username"]');
           const username = usernameEl ? usernameEl.textContent.trim() : '';
-          
+
           // Извлекаем полный текст
           const textParts = node.querySelectorAll('[data-a-target="chat-message-text"], [data-a-target="chat-message-mention"]');
           let fullText = '';
@@ -146,32 +166,46 @@ function startChatObserver(container) {
             fullText += part.textContent;
           });
           fullText = fullText.trim();
-          
+
           // Если это не полноценное сообщение, пропускаем
           if (!username || !fullText) {
             return;
           }
-          
+
           // ПРИМЕНЯЕМ ФИЛЬТР
-          if (isFilterEnabled) {
+          if (isFilterEnabled || isHideOthersEnabled) {
             let shouldHide = false;
-            
-			//console.log(username);
-			
-            // Если это AlextraWho - специальная логика
-            if (username === 'AlexstraWho') {
-              if (isEmojiOrAt(fullText, node)) {
-                //console.log('🎯 AlextraWho: первый символ - смайлик или @, скрываем');
-                shouldHide = true;
-              } else {
-                // Проверяем по паттернам
+
+            // 1. Если ник сообщения совпадает с ником пользователя —
+            //    перманентно пропускаем его, никогда не скрываем
+            if (userNickname && username.toLowerCase() === userNickname.toLowerCase()) {
+              shouldHide = false;
+            } else {
+              // 2. Флаг скрытия создан со значением false
+
+              // 3. Если это Алекстра — особый фильтр
+              if (username === BOT_NICKNAME) {
+                if (isEmojiOrAt(fullText, node)) {
+                  // Совпал с особым фильтром — флаг становится true
+                  shouldHide = true;
+                }
+              }
+
+              // 4. Проверка по паттернам — только если флаг ещё false
+              //    (если уже true — скипаем доп. проверку)
+              if (!shouldHide) {
                 shouldHide = containsPattern(fullText);
               }
-            } else {
-              // Для всех остальных - только паттерны
-              shouldHide = containsPattern(fullText);
             }
-            
+
+            // 5. Если активен второй тумблер и флаг true —
+            //    проверяем упоминание @ник пользователя в сообщении.
+            //    Если оно есть — возвращаем флаг на false (не скрываем).
+            if (isHideOthersEnabled && shouldHide && hasUserMention(node, fullText)) {
+              shouldHide = false;
+            }
+
+            // 6. В зависимости от конечного результата флага применяем скрытие
             if (shouldHide) {
               hideMessage(node);
             }
@@ -180,18 +214,25 @@ function startChatObserver(container) {
       });
     });
   });
-  
+
   chatObserver.observe(container, {
     childList: true,
     subtree: true
   });
-}
+} 
 
 // 9. Слушаем изменения в настройках
 chrome.storage.onChanged.addListener(function(changes, namespace) {
-  if (namespace === 'sync' && changes.hideAllKakula) {
+if (namespace !== 'sync') return;
+
+  if (changes.hideAllKakula) {
     isFilterEnabled = changes.hideAllKakula.newValue || false;
-    console.log('🔄 Состояние тумблера изменилось на:', isFilterEnabled);
+  }
+  if (changes.hideOthersKakula) {
+    isHideOthersEnabled = changes.hideOthersKakula.newValue || false;
+  }
+  if (changes.twitchNickname) {
+    userNickname = (changes.twitchNickname.newValue || '').trim();
   }
 });
 
