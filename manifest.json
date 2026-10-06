@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NoKakulaLeveling",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Удали Какула Левелинг из своего чата!",
   "permissions": [
     "storage"
