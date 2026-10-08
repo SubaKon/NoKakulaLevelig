@@ -3,7 +3,7 @@
 Браузерное расширение для скрытия Какула Левелинга из вашего чата!
 
 ![beta](https://img.shields.io/badge/beta-1.2.0-orange)
-[![Release](https://img.shields.io/github/v/release/USER/REPO?label=stable&color=green)](https://github.com/USER/REPO/releases/latest)
+[![Release](https://img.shields.io/github/v/release/USER/REPO?label=stable&color=green)](https://github.com/SubaKon/NoKakulaLeveling/releases/latest)
 ![platform](https://img.shields.io/badge/platform-Chrome%20%7C%20Edge%20%7C%20Yandex-informational)
 
 
