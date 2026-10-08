@@ -2,8 +2,9 @@
 
 Браузерное расширение для скрытия Какула Левелинга из вашего чата!
 
-![version](https://img.shields.io/badge/version-1.2.0-blue)
-![platform](https://img.shields.io/badge/platform-Chrome%20%7C%20Edge%20%7C%20Yandex-orange)
+![beta](https://img.shields.io/badge/beta-1.2.0-orange)
+[![Release](https://img.shields.io/github/v/release/USER/REPO?label=stable&color=green)](https://github.com/USER/REPO/releases/latest)
+![platform](https://img.shields.io/badge/platform-Chrome%20%7C%20Edge%20%7C%20Yandex-informational)
 
 
 ## ✨ Возможности
