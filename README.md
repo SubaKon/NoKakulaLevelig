@@ -51,6 +51,19 @@
   </tr>
 </table>
 
+<table align="center">
+  <tr>
+    <th align="center">⚡ Быстрые команды</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/1fe89720-a11b-44e4-bbcf-3587db35b807" width="502" alt="Подсказки быстрых команд над полем ввода чата">
+      <br>
+      <sub>Всплывающие подсказки команд прямо над полем ввода — выбор мышью или клавишей Tab</sub>
+    </td>
+  </tr>
+</table>
+
 
 ## 📂 Как это устроено
 
