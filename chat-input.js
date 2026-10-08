@@ -283,74 +283,117 @@
     panel.style.display = 'block';
   }
 
+  // ==================== Мост с MAIN world (порт подхода SevenTV) ====================
+  // SevenTV Extension вставляет текст НЕ через DOM/Selection API, а напрямую
+  // через движок Slate: slate.apply({type:'insert_text'/'remove_text'/'set_selection'}).
+  // Объект slateEditor живёт внутри React-дерева и виден только в MAIN world
+  // страницы, поэтому саму вставку выполняет page-world.js, а сюда приходят
+  // ответы через window.postMessage.
+  let pageWorldReady = false;
+  let insertSeq = 0;
+  const insertCallbacks = {}; // id -> функция ответа
+
+  window.addEventListener('message', function (ev) {
+    const d = ev.data;
+    if (!d || d.source !== 'nkl-page') return;
+
+    if (d.type === 'nkl-ready') {
+      pageWorldReady = true;
+      return;
+    }
+    if (d.type === 'nkl-insert-result') {
+      const cb = insertCallbacks[d.id];
+      if (cb) { delete insertCallbacks[d.id]; cb(d); }
+    }
+  });
+
+  function askPageWorldInsert(command, caretAbs) {
+    return new Promise(function (resolve) {
+      const id = 'nkl-' + (++insertSeq);
+      insertCallbacks[id] = resolve;
+      try {
+        window.postMessage(
+          { source: 'nkl-content', type: 'nkl-insert-command', id: id, command: command, caret: caretAbs },
+          '*'
+        );
+      } catch (e) {
+        delete insertCallbacks[id];
+        resolve({ ok: false, error: String(e) });
+        return;
+      }
+      setTimeout(function () {
+        if (insertCallbacks[id]) {
+          delete insertCallbacks[id];
+          resolve({ ok: false, error: 'timeout' });
+        }
+      }, 500);
+    });
+  }
+
+  // Абсолютная позиция курсора во всём тексте поля (как cursorLocation.offset
+  // у SevenTV, только в плоских координатах DOM-текста). page-world сопоставит
+  // её с leaf'ом Slate по path/offset.
+  function getCaretOffset(inputEl) {
+    try {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return null;
+      const range = sel.getRangeAt(0);
+      if (!inputEl.contains(range.startContainer)) return null;
+      const pre = range.cloneRange();
+      pre.selectNodeContents(inputEl);
+      pre.setEnd(range.startContainer, range.startOffset);
+      return pre.toString().length;
+    } catch (e) {
+      return null;
+    }
+  }
+
   // ==================== Вставка команды в поле ввода ====================
-  // ВАЖНО: никаких программных манипуляций с Selection API!
-  // Slate.js сам синхронизирует своё внутреннее состояние только через
-  // нативные contenteditable-события. execCommand('insertText') — единственный
-  // безопасный способ: браузер вставляет текст в ТЕКУЩУЮ позицию курсора
-  // и генерирует правильный 'input'-event, который Slate корректно обрабатывает.
-  // Любые setStart/Range/selectNodeContents снаружи ломают маппинг
-  // Slate point <-> DOM point (ошибка "Cannot resolve a DOM point from Slate point").
-  function insertTail(command) {
+  // Основной путь — метод SevenTV: замена набранного "!токена" на полную
+  // команду выполняется операциями Slate (remove_text + insert_text +
+  // set_selection) внутри MAIN world. execCommand('insertText') остался
+  // только как аварийный fallback, если MAIN world недоступен.
+  async function insertTail(command) {
     if (!currentInput || !command) return;
 
-    // Хвост = часть команды, которую пользователь ещё НЕ набрал.
-    // Считаем относительно всего текста поля: если введено "!ка",
-    // а выбрали "!какуляторы", вставим "куляторы ".
     const fullText = getLiveText(currentInput);
-    const typed = fullText.toLowerCase();
-    const cmdLower = command.toLowerCase();
+    const caret = getCaretOffset(currentInput);
 
-    let tail = command;
-    if (typed.endsWith(cmdLower)) {
-      tail = ''; // команда уже полностью набрана — вставлять нечего
-    } else if (cmdLower.startsWith(typed.replace(/^!/, '')) && !typed.startsWith('!!')) {
-      // Пользователь набрал префикс команды целиком (например "!ка" -> "!какуляторы").
-      // Хвост — оставшаяся часть без учёта уже набранного префикса.
-      const prefixLen = fullText.length; // весь ввод = "!" + префикс
-      tail = command.slice(prefixLen - 1); // минус "!" уже нет... считаем аккуратно ниже
+    // Путь 1: Slate-операции через page-world (подход SevenTV).
+    if (pageWorldReady) {
+      const res = await askPageWorldInsert(command, caret);
+      if (res && res.ok) {
+        hidePanel();
+        lastText = getLiveText(currentInput);
+        return;
+      }
+      // Не удалось найти slateEditor — падаем на fallback,
+      // но если пользователь уже набрал команду целиком — ничего не вставляем.
     }
 
-    // Универсальный расчёт хвоста: находим общее начало между
-    // набранным текстом и командой с позиции конца набранного слова.
-    tail = computeTail(fullText, command);
-
+    // Путь 2 (fallback): вычисляем "хвост" и вставляем нативным
+    // execCommand — он генерирует правильный beforeinput/input событие,
+    // которое Slate сам обрабатывает через свой DOM->Slate маппинг.
+    const tail = computeTail(fullText, command);
     if (!tail) {
       hidePanel();
       lastText = getLiveText(currentInput);
       return;
     }
-
-    // Курсор пользователя остаётся там же, где был; мы просто вставляем текст.
-    // Если фокус потерян (клик по подсказке) — вернём его в конец поля
-    // БЕЗ ручного создания Range: используем selection.toString()=='' трюк?
-    // Нет — самый безопасный путь: mousedown.preventDefault() выше сохраняет
-    // фокус в поле, поэтому курсор уже стоит там, где был у пользователя.
     document.execCommand('insertText', false, tail);
 
     hidePanel();
     lastText = getLiveText(currentInput);
   }
 
-  // Вычисляет, какой текст осталось дописать к текущему вводу.
+  // Вычисляет, какой текст осталось дописать к текущему вводу (для fallback).
   // fullText — что сейчас в поле (например "!ка"), command — цель ("!какуляторы").
   function computeTail(fullText, command) {
     const target = command + ' '; // после команды всегда пробел
-    // Ищем самый длинный суффикс набранного текста, который является
-    // префиксом целевой команды. Вставляем только остальное.
-    for (let k = Math.min(fullText.length, target.length); k >= 0; k--) {
-      if (target.startsWith(fullText.slice(fullText.length - k))) {
-        // Последние k символов ввода уже совпадают с началом цели.
-        // Но нам нужно, чтобы ВЕСЬ ввод остался на месте, поэтому сверяем
-        // с начала: если ввод целиком — префикс цели, дописываем остаток.
-        break;
-      }
-    }
     if (target.startsWith(fullText)) {
       return target.slice(fullText.length);
     }
-    // Ввод НЕ является префиксом цели (например, пользователь поставил
-    // курсор в середину) — safest вариант: дописать всю команду как есть.
+    // Ввод НЕ является префиксом цели — safest вариант: дописать всю команду.
     return target;
   }
 
@@ -436,7 +479,7 @@
     }
     if (e.key === 'Tab' && activeIndex >= 0) {
       e.preventDefault(); // Tab без активной подсказки — обычное поведение браузера
-      chooseSuggestion(activeIndex);
+      Promise.resolve(chooseSuggestion(activeIndex)).catch(function () {});
     }
   }
 
@@ -466,6 +509,12 @@
     });
 
     observeEditorTree(inputEl);
+
+    // Пингуем MAIN world: page-world.js мог загрузиться раньше, чем мы
+    // навесили слушатель сообщений — он ответит 'nkl-ready' и мы узнаем,
+    // что Slate-вставка доступна (как у SevenTV).
+    try { window.postMessage({ source: 'nkl-content', type: 'nkl-ping' }, '*'); } catch (e) {}
+
     console.log('✅ NKL chat-input: слушатель навешен на поле ввода чата');
   }
 
