@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ================= Проверка обновлений расширения =================
 
-  const REPO_API_URL = 'https://api.github.com/repos/SubaKon/NoKakulaLevelig/releases/latest';
+  const REPO_API_URL = 'https://api.github.com/repos/SubaKon/NoKakulaLeveling/releases/latest';
   const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // раз в день
 
   // Сравнивает версии вида "1.2.3", возвращает 1 если a > b, -1 если a < b, 0 если равны
