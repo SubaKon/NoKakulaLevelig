@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const subToggles = document.getElementById('subToggles');
   const toggleBaseCommand = document.getElementById('toggleBaseCommand');
   const toggleKakulaCommand = document.getElementById('toggleKakulaCommand');
+  const toggleKakulaDefense = document.getElementById('toggleKakulaDefense');
 
   // Тумблер-заглушка "Авто Какула Левелинг"
   const toggle3 = document.getElementById('toggle3');
@@ -36,10 +37,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Загружаем состояние "Быстрых команд" и маленьких тумблеров
-  chrome.storage.sync.get(['quickCommands', 'quickCommandBase', 'quickCommandKakula'], function(result) {
+  chrome.storage.sync.get(['quickCommands', 'quickCommandBase', 'quickCommandKakula', 'quickCommandKakulaDefense'], function(result) {
     toggleQuickCommands.checked = result.quickCommands || false;
     toggleBaseCommand.checked = result.quickCommandBase || false;
     toggleKakulaCommand.checked = result.quickCommandKakula || false;
+    toggleKakulaDefense.checked = result.quickCommandKakulaDefense || false;
     subToggles.style.display = toggleQuickCommands.checked ? 'block' : 'none';
     console.log('Загружено состояние быстрых команд:', toggleQuickCommands.checked);
   });
@@ -105,7 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!this.checked) {
       toggleBaseCommand.checked = false;
       toggleKakulaCommand.checked = false;
-      chrome.storage.sync.set({ quickCommandBase: false, quickCommandKakula: false });
+      toggleKakulaDefense.checked = false;
+      chrome.storage.sync.set({ quickCommandBase: false, quickCommandKakula: false, quickCommandKakulaDefense: false });
     }
   });
 
@@ -119,6 +122,12 @@ document.addEventListener('DOMContentLoaded', function() {
   toggleKakulaCommand.addEventListener('change', function() {
     console.log('Какула Левелинг команда:', this.checked);
     chrome.storage.sync.set({ quickCommandKakula: this.checked });
+  });
+
+  // Обработчик для маленького тумблера "Какула Дефенс"
+  toggleKakulaDefense.addEventListener('change', function() {
+    console.log('Какула Дефенс команда:', this.checked);
+    chrome.storage.sync.set({ quickCommandKakulaDefense: this.checked });
   });
 
   // ================= Проверка обновлений расширения =================
