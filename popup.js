@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Показывает результат проверки под кнопкой
   function showUpdateResult(newVersion) {
     const currentVersion = chrome.runtime.getManifest().version;
-    versionInfo.textContent = `Текущая версия: ${currentVersion} → Новая версия: ${newVersion}`;
+    versionInfo.textContent = `Текущая версия: ${currentVersion} → Последний release: ${newVersion}`;
 
     if (compareVersions(newVersion, currentVersion) > 0) {
       downloadUpdateBtn.style.display = 'block'; // большая зелёная кнопка скачивания
