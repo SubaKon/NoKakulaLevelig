@@ -414,7 +414,7 @@
     if (text === lastText) return; // дубли-события без изменения текста — игнор
     lastText = text;
 
-    console.log('NKL chat-input: изменился ввод →', JSON.stringify(text));
+    //console.log('NKL chat-input: изменился ввод →', JSON.stringify(text));
 
     // Подсказки активны только когда ввод НАЧИНАЕТСЯ с "!"
     if (text[0] !== '!') {
