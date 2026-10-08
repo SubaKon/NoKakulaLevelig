@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NoKakulaLeveling",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Удали Какула Левелинг из своего чата!",
   "permissions": [
     "storage"
@@ -25,7 +25,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.twitch.tv/*"],
-      "js": ["content.js"],
+      "js": ["filter.js", "content.js"],
       "run_at": "document_idle"
     }
   ],

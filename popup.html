@@ -93,6 +93,40 @@
       transform: translateX(24px);
     }
 
+    /* Стили для маленьких тумблеров (Быстрые команды) */
+    .sub-toggles {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+
+    .sub-toggle-item {
+      padding: 6px 0;
+    }
+
+    .toggle-switch.small {
+      width: 34px;
+      height: 18px;
+    }
+
+    .toggle-switch.small .slider:before {
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+    }
+
+    .toggle-switch.small input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    .sub-toggle-hint {
+      display: block;
+      font-size: 11px;
+      color: #999;
+      margin-top: 2px;
+    }
+
     /* Стили для поля ввода ника */
     .nickname-container {
       background: white;
@@ -149,6 +183,58 @@
       margin-top: 6px;
     }
 
+    /* Стили для блока проверки обновлений */
+    .update-container {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    #checkUpdateBtn {
+      padding: 8px 14px;
+      font-size: 13px;
+      background: #9147ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #checkUpdateBtn:hover {
+      background: #7d2ae8;
+    }
+
+    #checkUpdateBtn:disabled {
+      background: #b9a3e6;
+      cursor: wait;
+    }
+
+    .version-info {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    .download-btn {
+      display: block;
+      margin-top: 10px;
+      padding: 12px 10px;
+      background: #4CAF50;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .download-btn:hover {
+      background: #43a047;
+    }
+
     /* Стили для footer */
     .footer {
       margin-top: 20px;
@@ -168,16 +254,6 @@
 <body>
   <h1>NoKakulaLeveling!</h1>
   <h2>Settings</h2>
-
-  <div class="toggle-container">
-    <label class="toggle-label">
-      <span class="toggle-text">Скрыть весь Какула левелинг</span>
-      <div class="toggle-switch">
-        <input type="checkbox" id="toggle1">
-        <span class="slider"></span>
-      </div>
-    </label>
-  </div>
 
   <div class="toggle-container">
     <label class="toggle-label">
@@ -201,12 +277,62 @@
 
   <div class="toggle-container">
     <label class="toggle-label">
-      <span class="toggle-text">Авто Какула Левелинг</span>
+      <span class="toggle-text">Быстрые команды</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="toggleQuickCommands">
+        <span class="slider"></span>
+      </div>
+    </label>
+
+    <!-- Маленькие тумблеры, появляются при активации "Быстрые команды" -->
+    <div class="sub-toggles" id="subToggles" style="display: none;">
+      <div class="sub-toggle-item">
+        <label class="toggle-label">
+          <span class="toggle-text">
+            Это база, это знать надо
+            <span class="sub-toggle-hint">Должен был уже наизусть выучить</span>
+          </span>
+          <div class="toggle-switch small">
+            <input type="checkbox" id="toggleBaseCommand">
+            <span class="slider"></span>
+          </div>
+        </label>
+      </div>
+
+      <div class="sub-toggle-item">
+        <label class="toggle-label">
+          <span class="toggle-text">Какула Левелинг</span>
+          <div class="toggle-switch small">
+            <input type="checkbox" id="toggleKakulaCommand">
+            <span class="slider"></span>
+          </div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Большой тумблер-заглушка "Авто Какула Левелинг" -->
+  <div class="toggle-container">
+    <label class="toggle-label">
+      <span class="toggle-text">
+        Авто Какула Левелинг
+        <span class="sub-toggle-hint">Скоро! Следите за обновлениями 😉</span>
+      </span>
       <div class="toggle-switch">
         <input type="checkbox" id="toggle3">
         <span class="slider"></span>
       </div>
     </label>
+  </div>
+
+  <!-- Проверка обновлений расширения -->
+  <div class="update-container">
+    <button id="checkUpdateBtn">Проверить обновление</button>
+    <div class="version-info" id="versionInfo"></div>
+    <a id="downloadUpdateBtn" class="download-btn" style="display: none;"
+       href="https://github.com/SubaKon/NoKakulaLevelig" target="_blank" rel="noopener">
+      Скачать бесплатно без СМС и регистрации
+    </a>
   </div>
 
   <!-- Footer с припиской -->

@@ -1,125 +1,9 @@
+// content.js — только наблюдение за чатом и само действие (скрытие).
+// Вся логика фильтрации вынесена в filter.js (window.NKLFilter.shouldHide).
+
 console.log('NoKakulaLeveling: Скрипт запущен');
 
-// Глобальные переменные
-let patterns = [];
-let isFilterEnabled = false;
-let isHideOthersEnabled = false;
-let userNickname = '';
-
-const BOT_NICKNAME = 'AlexstraWho'; // Ник Алекстры
-
-// 1. Загружаем паттерны из файла
-async function loadPatterns() {
-  try {
-    const response = await fetch(chrome.runtime.getURL('patterns.json'));
-    const data = await response.json();
-    patterns = data.kakulaLeveling || [];
-    console.log('✅ Загружено паттернов:', patterns.length);
-  } catch (error) {
-    console.error('❌ Ошибка загрузки паттернов:', error);
-  }
-}
-
-// 2. Загружаем состояние тумблеров и ника из storage
-function loadToggleState() {
-    chrome.storage.sync.get(['hideAllKakula', 'hideOthersKakula', 'twitchNickname'], function(result) {
-    isFilterEnabled = result.hideAllKakula || false;
-    isHideOthersEnabled = result.hideOthersKakula || false;
-    userNickname = (result.twitchNickname || '').trim();
-    //console.log('🔘 Тумблер "скрыть весь":', isFilterEnabled);
-    //console.log('🔘 Тумблер "скрыть чужой":', isHideOthersEnabled);
-    //console.log('👤 Ник пользователя:', userNickname);
-  });
-}
-
-// 3. Проверяем, является ли первый символ смайликом или @
-function isEmojiOrAt(text, node) {
-  if (!text) return false;
-  
-  // 1. Проверяем на @
-  if (text.charAt(0) === '@') {
-    return true;
-  }
-  
-  // 2. Проверяем на кастомный эмодзи Twitch (картинка в самом начале)
-  const textContainer = node.querySelector('[data-a-target="chat-message-text"]');
-  if (textContainer) {
-    const firstChild = textContainer.firstElementChild;
-    if (firstChild && firstChild.tagName === 'IMG' && (firstChild.classList.contains('chat-emoticon') || firstChild.classList.contains('emoticon'))) {
-      return true;
-    }
-  }
-  
-  // 3. ЖЕЛЕЗОБЕТОННАЯ ПРОВЕРКА:
-  // Проверяем, является ли первый символ ОБЫЧНОЙ буквой или цифрой
-  const firstCodePoint = text.codePointAt(0);
-  if (firstCodePoint !== undefined) {
-    const firstCharFull = String.fromCodePoint(firstCodePoint);
-    
-    // \p{L} = любая буква (включая кириллицу), \p{N} = любая цифра
-    const isNormalChar = /^\p{L}|\p{N}/u.test(firstCharFull);
-    
-    // Если это НЕ обычная буква и НЕ цифра, значит это смайлик, символ (𖡎, ‼️, 💸) или спецзнак
-    if (!isNormalChar) {
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-// 4. Логика проверки паттерна
-function matchesPattern(messageText, pattern) {
-  const startsWithStar = pattern.startsWith('*');
-  const endsWithStar = pattern.endsWith('*');
-
-  if (startsWithStar && endsWithStar) {
-    const substring = pattern.slice(1, -1);
-    return messageText.includes(substring);
-  } 
-  else if (endsWithStar) {
-    const prefix = pattern.slice(0, -1);
-    return messageText.startsWith(prefix);
-  } 
-  else if (startsWithStar) {
-    const suffix = pattern.slice(1);
-    return messageText.endsWith(suffix);
-  } 
-  else {
-    return messageText === pattern;
-  }
-}
-
-// 5. Проверяем текст сообщения по всем паттернам
-function containsPattern(messageText) {
-  for (const pattern of patterns) {
-    if (matchesPattern(messageText, pattern)) {
-      //console.log('🎯 СОВПАДЕНИЕ! Паттерн:', pattern, '| Текст:', messageText);
-      return true;
-    }
-  }
-  return false;
-}
-
-// 6. Проверяем, есть ли в сообщении упоминание @ник пользователя (без учёта регистра)
-function hasUserMention(node, fullText) {
-  if (!userNickname) return false;
-  const nickLower = userNickname.toLowerCase();
-  const mentionRegex = new RegExp('@' + nickLower + '(?![\\w])', 'i');
-  return mentionRegex.test(fullText);
-}
-
-// 7. Скрытие сообщения
-function hideMessage(messageElement) {
-  messageElement.style.display = 'none';
-  //console.log('🚫 Сообщение скрыто');
-}
-
-function showMessage(messageElement) {
-  messageElement.style.display = '';
-}
-
-// 8. Ждем появления контейнера #live-page-chat
+// 1. Ждем появления контейнера #live-page-chat
 function waitForChatContainer() {
   const existingContainer = document.querySelector('#live-page-chat');
   if (existingContainer) {
@@ -141,75 +25,18 @@ function waitForChatContainer() {
   tempObserver.observe(document.body, { childList: true, subtree: true });
 }
 
-// 8. Наблюдатель за сообщениями и ФИЛЬТРАЦИЯ
+// 2. Наблюдатель за сообщениями
 function startChatObserver(container) {
   console.log('🚀 Запускаем наблюдение и фильтрацию...');
 
   const chatObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
 
-          // Фильтр: реагируем только на LI (VOD) и DIV (Live)
-          if (node.tagName !== 'LI' && node.tagName !== 'DIV') {
-            return;
-          }
-
-          // Извлекаем имя
-          const usernameEl = node.querySelector('[data-a-target="chat-message-username"]');
-          const username = usernameEl ? usernameEl.textContent.trim() : '';
-
-          // Извлекаем полный текст
-          const textParts = node.querySelectorAll('[data-a-target="chat-message-text"], [data-a-target="chat-message-mention"]');
-          let fullText = '';
-          textParts.forEach(part => {
-            fullText += part.textContent;
-          });
-          fullText = fullText.trim();
-
-          // Если это не полноценное сообщение, пропускаем
-          if (!username || !fullText) {
-            return;
-          }
-
-          // ПРИМЕНЯЕМ ФИЛЬТР
-          if (isFilterEnabled || isHideOthersEnabled) {
-            let shouldHide = false;
-
-            // 1. Если ник сообщения совпадает с ником пользователя —
-            //    перманентно пропускаем его, никогда не скрываем
-            if (userNickname && username.toLowerCase() === userNickname.toLowerCase()) {
-              shouldHide = false;
-            } else {
-              // 2. Флаг скрытия создан со значением false
-
-              // 3. Если это Алекстра — особый фильтр
-              if (username === BOT_NICKNAME) {
-                if (isEmojiOrAt(fullText, node)) {
-                  // Совпал с особым фильтром — флаг становится true
-                  shouldHide = true;
-                }
-              }
-
-              // 4. Проверка по паттернам — только если флаг ещё false
-              //    (если уже true — скипаем доп. проверку)
-              if (!shouldHide) {
-                shouldHide = containsPattern(fullText);
-              }
-            }
-
-            // 5. Если активен второй тумблер и флаг true —
-            //    проверяем упоминание @ник пользователя в сообщении.
-            //    Если оно есть — возвращаем флаг на false (не скрываем).
-            if (isHideOthersEnabled && shouldHide && hasUserMention(node, fullText)) {
-              shouldHide = false;
-            }
-
-            // 6. В зависимости от конечного результата флага применяем скрытие
-            if (shouldHide) {
-              hideMessage(node);
-            }
-          }
+        // Простая проверка: если функция проверки на скрытие вернула true — скрываем
+        if (window.NKLFilter.shouldHide(node)) {
+          node.style.display = 'none';
         }
       });
     });
@@ -219,27 +46,12 @@ function startChatObserver(container) {
     childList: true,
     subtree: true
   });
-} 
+}
 
-// 9. Слушаем изменения в настройках
-chrome.storage.onChanged.addListener(function(changes, namespace) {
-if (namespace !== 'sync') return;
-
-  if (changes.hideAllKakula) {
-    isFilterEnabled = changes.hideAllKakula.newValue || false;
-  }
-  if (changes.hideOthersKakula) {
-    isHideOthersEnabled = changes.hideOthersKakula.newValue || false;
-  }
-  if (changes.twitchNickname) {
-    userNickname = (changes.twitchNickname.newValue || '').trim();
-  }
-});
-
-// 10. Инициализация
+// 3. Инициализация
 async function init() {
-  await loadPatterns();
-  loadToggleState();
+  await window.NKLFilter.init();       // загрузка паттернов (filter.js)
+  window.NKLFilter.loadToggleState();  // загрузка тумблеров и ника (filter.js)
   waitForChatContainer();
 }
 
