@@ -129,6 +129,7 @@
 - [ ] Авто Какула Левелинг (вот би Какула сам ходил на работу..)
 
 Нашёл баг или есть идея? Открывай [Issue](https://github.com/SubaKon/NoKakulaLeveling/issues)!
+Или пиши мне в [Дискордик](https://discord.gg/EzzkBSbS)
 
 
 ## 🙏 Благодарности
