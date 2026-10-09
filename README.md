@@ -134,7 +134,8 @@
 
 ## 🙏 Благодарности
 
-- [SevenTV Extension](https://github.com/SevenTV/Extension/) — за элегантный метод вставки текста в Slate-редактор Twitch, портированный в это расширение.
+- [SevenTV Extension](https://github.com/SevenTV/Extension/) -- за элегантный метод вставки текста в Slate-редактор Twitch, портированный в это расширение.
+- [Qwen Coder](https://coder.qwen.ai) -- да, к этому расширению также приложил свою цифровую ИИ руку Qwen
 
 Пользуйтесь с любовью
 SubaKon
