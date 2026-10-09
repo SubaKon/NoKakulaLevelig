@@ -1,13 +1,8 @@
-// page-world.js — внедряется в MAIN world страницы (см. manifest.json: "world": "MAIN").
-// Именно поэтому здесь ВИДНЫ ключи __reactFiber$ и внутренние объекты React/Slate,
-// которые недоступны обычным content-скриптам (isolated world).
-//
-// Код — максимально близкий порт логики вставки текста из SevenTV Extension:
-//   src/common/ReactHooks.ts        -> getVNodeFromDOM / findComponentChildren
-//   src/site/twitch.tv/modules/chat-input/ChatInput.vue -> handleTabPress
-//     (slate.apply remove_text / insert_text / set_selection)
-//
-// Общение с UI-подсказками (chat-input.js, isolated world) идёт через postMessage.
+/*
+ * Часть кода в этом файле (вставка текста в Slate-редактор Twitch) 
+ * адаптирована из репозитория SevenTV (https://github.com/SevenTV/Extension).
+ * Оригинальный код распространяется под лицензией Apache 2.0 с условием Commons Clause v1.0.
+ */
 
 (function () {
   'use strict';
