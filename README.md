@@ -129,6 +129,7 @@
 - [ ] Авто Какула Левелинг (вот би Какула сам ходил на работу..)
 
 Нашёл баг или есть идея? Открывай [Issue](https://github.com/SubaKon/NoKakulaLeveling/issues)!
+
 Или пиши мне в [Дискордик](https://discord.gg/EzzkBSbS)
 
 
@@ -138,4 +139,5 @@
 - [Qwen Coder](https://coder.qwen.ai) -- да, к этому расширению также приложил свою цифровую ИИ руку Qwen
 
 Пользуйтесь с любовью
+
 SubaKon
