@@ -2,7 +2,7 @@
 
 Браузерное расширение для Twitch: **скрывает Какула Левелинг из чата** и добавляет **быстрые команды с автодополнением** прямо в поле ввода.
 
-![beta](https://img.shields.io/badge/beta-v1.2.5-orange)
+![beta](https://img.shields.io/badge/beta-v1.2.7-orange)
 [![Release](https://img.shields.io/github/v/release/SubaKon/NoKakulaLeveling?label=stable&color=green)](https://github.com/SubaKon/NoKakulaLeveling/releases/latest)
 ![platform](https://img.shields.io/badge/platform-Chrome%20%7C%20Edge%20%7C%20Yandex-informational)
 ![manifest](https://img.shields.io/badge/Manifest%20V3-blue)
@@ -112,20 +112,21 @@
 ### Полноценный
 1. Скачать новый релиз или бэтку
 2. Открыть папку расширения
-3. Распаковать архив с заменой 
+3. Распаковать архив с заменой
 4. Перейти в chrome://extensions
 5. Перезапустить расширение
 6. Перезагрузить страницу twitch, если открыта
 
 ### Только паттерны
 1. Скачать файл patterns.json
-2. Открыть папку с расширением 
+2. Открыть папку с расширением
 3. Заменить patterns.json
 4. Перезагрузить страницу twitch, если открыта
 
 
 ## 💡 Идеи для разработки
 
+- [ ] Адаптировать и опубликовать в Firefox
 - [ ] Авто Какула Левелинг (вот би Какула сам ходил на работу..)
 
 Нашёл баг или есть идея? Открывай [Issue](https://github.com/SubaKon/NoKakulaLeveling/issues)!
