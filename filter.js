@@ -172,11 +172,26 @@
   chrome.storage.onChanged.addListener(function (changes, namespace) {
     if (namespace !== 'sync') return;
 
+    let toggleChanged = false;
+
     if (changes.hideOthersKakula) {
-      isHideOthersEnabled = changes.hideOthersKakula.newValue || false;
+      const newValue = changes.hideOthersKakula.newValue || false;
+      if (newValue !== isHideOthersEnabled) {
+        isHideOthersEnabled = newValue;
+        toggleChanged = true;
+      }
     }
     if (changes.twitchNickname) {
       userNickname = (changes.twitchNickname.newValue || '').trim();
+      toggleChanged = true;
+    }
+
+    // Если тумблер поменял состояние — уведомляем content.js
+    // (тот запустит разовый проход по уже открытым сообщениям)
+    if (toggleChanged) {
+      window.dispatchEvent(new CustomEvent('nkl:filter-state-changed', {
+        detail: { enabled: isHideOthersEnabled }
+      }));
     }
   });
 
