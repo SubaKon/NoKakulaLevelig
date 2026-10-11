@@ -84,7 +84,13 @@
       return messageText.endsWith(suffix);
     }
     else {
-      return messageText === pattern;
+      // Паттерн без звёздочек: точное совпадение ИЛИ совпадение с пробелом после паттерна
+      // (чтобы "!акции " тоже засчитывалось как "!акции")
+      if (messageText === pattern) return true;
+      if (messageText.startsWith(pattern) && /\s/.test(messageText.charAt(pattern.length))) {
+        return true;
+      }
+      return false;
     }
   }
 
