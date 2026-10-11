@@ -130,13 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Показываем/скрываем маленькие тумблеры
     subToggles.style.display = this.checked ? 'block' : 'none';
 
-    // При выключении сбрасываем маленькие тумблеры
-    if (!this.checked) {
-      toggleBaseCommand.checked = false;
-      toggleKakulaCommand.checked = false;
-      toggleKakulaDefense.checked = false;
-      chrome.storage.sync.set({ quickCommandBase: false, quickCommandKakula: false, quickCommandKakulaDefense: false });
-    }
   });
 
   // Обработчик для маленького тумблера "Это база, это знать надо"
